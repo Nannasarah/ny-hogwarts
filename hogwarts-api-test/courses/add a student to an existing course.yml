@@ -1,0 +1,15 @@
+info:
+  name: add a student to an existing course
+  type: http
+  seq: 7
+
+http:
+  method: PUT
+  url: http://localhost:3000/courses/students/3/students/2
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

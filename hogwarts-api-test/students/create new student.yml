@@ -1,0 +1,18 @@
+info:
+  name: create new student
+  type: http
+  seq: 6
+
+http:
+  method: POST
+  url: http://localhost:3000/students
+  body:
+    type: json
+    data: '   { "name": "Nanna-Sarah", "house_id": 1 }'
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

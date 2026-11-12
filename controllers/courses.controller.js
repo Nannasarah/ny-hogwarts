@@ -37,7 +37,7 @@ export async function getCourseById(req, res) {
 // Forventer en body som: { "name": "Defence Against the Dark Arts", "teacher_id": 1 }
 export async function createCourse(req, res) {
   // try {
-  //   const { name, teacher_id } = req.body;
+  const { name, teacher_id } = req.body;
 
   if (!name) {
     return res.sendStatus(400).json({ message: "Name is required", error: "Bad request", statusCode: 400 }); // betyder bad request (der mangler data)
@@ -105,7 +105,7 @@ export async function changeTeacher(req, res) {
 
   // Tjek at både course og teacher findes
   const course = await coursesRepository.getCourseById(courseId);
-  const teacher = await teachersRepository.getTeacherById(teacher_id);
+  const teacher = await teachersRepository.getById(teacher_id);
 
   if (!course || !teacher) {
     return res.sendStatus(404).json({ message: "Course or teacher does not exist", error: "Not found", statusCode: 404 }); // betyder not found

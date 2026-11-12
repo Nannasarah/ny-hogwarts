@@ -1,6 +1,7 @@
 // Henter alle funktioner fra teachers-repository'et
 import * as teachersRepository from "../repositories/teachers.repository.js";
 import httperror from "../errorhandling/httperror.js";
+import UpdateTeacherDto from "../dtos/updateteacher.dto.js";
 
 // GET all teachers
 export async function getAllTeachers(req, res) {
@@ -17,7 +18,7 @@ export async function getAllTeachers(req, res) {
 export async function getTeacherById(req, res) {
   // try {
   const id = req.params.id;
-  const teacher = await teachersRepository.getTeacherById(id);
+  const teacher = await teachersRepository.getById(id);
 
   // Findes ikke, 404 Not Found
   if (teacher) {
@@ -59,14 +60,10 @@ export async function createTeacher(req, res) {
 export async function updateTeacher(req, res) {
   // try {
   const id = req.params.id;
-  const { name, house_id } = req.body;
+  const input = req.body;
 
-  // Mangler name → 400 Bad Request
-  if (!name) {
-    return res.sendStatus(400); // betyder bad request (der mangler data)
-  }
-
-  const updatedTeacher = await teachersRepository.updateTeacher(id, name, house_id);
+  const newTeacherData = UpdateTeacherDto.parse(input);
+  const updatedTeacher = await teachersRepository.updateTeacher(id, newTeacherData);
 
   // Findes ikke → 404 Not Found
   if (!updatedTeacher) {

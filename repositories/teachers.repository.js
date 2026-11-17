@@ -24,23 +24,25 @@ export async function getById(id) {
 }
 
 // POST create new teacher
-export async function createTeacher(name, houseId) {
-  const result = await pool.query(/*sql*/ `INSERT INTO teachers (name, house_id) VALUES ($1, $2) RETURNING *`, [name, houseId]); //laver en ny lærer med både hus og navn.
+export async function createTeacher(teacher) {
+  const result = await pool.query(
+    /*sql*/ `INSERT INTO teachers (name, house_id)
+             VALUES ($1, $2) RETURNING *`,
+    [teacher.name, teacher.house_id],
+  );
 
   return result.rows[0];
 }
 
 // PUT opdater en eksisterende lærer
-export async function updateTeacher(id, teacherdata) {
-  const result = await pool.query(
-    "UPDATE teachers SET name = $1, house_id = $2 WHERE id = $3 RETURNING id", 
-    [teacherdata.name, teacherdata.house_id, id]); //opdaterer både hus og navn. Værdierne hentes fra teacherdata-objektet (fra DTO'en) og passer til $1, $2 og $3
+export async function updateTeacher(id, teacher) {
+  const result = await pool.query("UPDATE teachers SET name = $1, house_id = $2 WHERE id = $3 RETURNING id", [teacher.name, teacher.house_id, id]);
   if (result.rowCount === 0) {
     return null; // Returner null, hvis ingen rækker blev opdateret
   }
   const updateId = result.rows[0].id;
 
-  return getById(updateId); // Hent den opdaterede lærer ved hjælp af getById-funktionen
+  return getById(updateId);
 }
 
 // DELETE eksisterende lærer

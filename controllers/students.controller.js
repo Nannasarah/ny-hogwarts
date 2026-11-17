@@ -1,14 +1,13 @@
 // Henter alle funktioner fra students-repository'et
 import * as studentsRepository from "../repositories/students.repository.js";
 import httperror from "../errorhandling/httperror.js";
-
-// Fejl bliver "thrown" som httperror og fanget af errorhandleren (errorhandler.js),
-// så der er ikke brug for try-catch her.
+import CreateStudentDto from "../dtos/createstudent.dto.js";
+import UpdateStudentDto from "../dtos/updatestudent.dto.js";
 
 // GET all students
 export async function getAllStudents(req, res) {
   const students = await studentsRepository.getAllStudents();
-  res.status(200).json(students); // 200 = OK
+  res.status(200).json(students);
 }
 
 // GET single student
@@ -22,42 +21,32 @@ export async function getStudentById(req, res) {
     throw new httperror(404, "Student does not exist");
   }
 
-  res.status(200).json(student); // 200 = OK
+  res.status(200).json(student);
 }
 
 // POST lav en ny student
-// Forventer en body ser sådan ud: { "name": "Nanna Pedersen", "house_id": 1 }
 export async function createStudent(req, res) {
-  const { name, house_id } = req.body;
+  const data = req.body;
+  const student = CreateStudentDto.parse(data);
 
-  // Mangler name → 400 Bad Request
-  if (!name) {
-    throw new httperror(400, "Name is required");
-  }
-
-  const newStudent = await studentsRepository.createStudent(name, house_id);
-  res.status(201).json(newStudent); // 201 = Created
+  const newStudent = await studentsRepository.createStudent(student);
+  res.status(201).json(newStudent);
 }
 
 // PUT opdater eksisterende student
 // Forventer en body ved test der ser sådan ud: { "name": "Nanna Pedersen", "house_id": 1 }
 export async function updateStudent(req, res) {
   const id = req.params.id;
-  const { name, house_id } = req.body;
+  const data = req.body;
+  const student = UpdateStudentDto.parse(data);
 
-  // Mangler name → 400 Bad Request
-  if (!name) {
-    throw new httperror(400, "Name is required");
-  }
+  const updatedStudent = await studentsRepository.updateStudent(id, student);
 
-  const updatedStudent = await studentsRepository.updateStudent(id, name, house_id);
-
-  // Findes ikke → 404 Not Found
   if (!updatedStudent) {
     throw new httperror(404, "Student does not exist");
   }
 
-  res.status(200).json(updatedStudent); // 200 = OK
+  res.status(200).json(updatedStudent);
 }
 
 // DELETE eksisterende student
@@ -65,11 +54,9 @@ export async function deleteStudent(req, res) {
   const id = req.params.id;
   const deletedCount = await studentsRepository.deleteStudent(id);
 
-  // Intet blev slettet → 404 Not Found
   if (deletedCount === 0) {
     throw new httperror(404, "Student does not exist");
   }
 
-  // Slettet → 204 No Content (der sendes ikke noget tilbage)
   res.sendStatus(204);
 }

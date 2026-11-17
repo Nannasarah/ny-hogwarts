@@ -14,7 +14,7 @@ export default (err, req, res, next) => {
 
   res.status(statusCode).json({
     message: err.message,
-    error: "Internal server error",
+    error: error, // bruger teksten fra if/else ovenfor, så 404 siger "Not found" og 400 siger "Bad request"
     statusCode: statusCode,
   });
 };

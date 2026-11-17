@@ -20,7 +20,7 @@ export async function createStudent(name, houseId) {
 }
 
 // PUT opdater en eksisterende student
-export async function updateStudenr(id, name, houseId) {
+export async function updateStudent(id, name, houseId) {
   const result = await pool.query("UPDATE students SET name = $1, house_id = $2 WHERE id = $3 RETURNING *", [name, houseId, id]);
   return result.rows[0];
 }

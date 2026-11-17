@@ -2,98 +2,74 @@
 import * as studentsRepository from "../repositories/students.repository.js";
 import httperror from "../errorhandling/httperror.js";
 
+// Fejl bliver "thrown" som httperror og fanget af errorhandleren (errorhandler.js),
+// så der er ikke brug for try-catch her.
+
 // GET all students
 export async function getAllStudents(req, res) {
-  // try {
   const students = await studentsRepository.getAllStudents();
-  res.status(200).json(students); // betyder OK
-  // } catch (err) {
-  //   console.log(err);
-  //   res.sendStatus(500); // betyder uforudset fejl på serveren
-  // }
+  res.status(200).json(students); // 200 = OK
 }
 
 // GET single student
 export async function getStudentById(req, res) {
-  // try {
   const id = req.params.id;
   const student = await studentsRepository.getStudentById(id);
 
-  // Findes ikke → 404 Not Found
-  if (student) {
-    console.log("Student found:", student);
-    res.status(200).json(student); // betyder OK
+  // Findes ikke → 404 Not Found.
+  // Vi tjekker for fejlen FØRST, så throw ikke kører efter at svaret allerede er sendt
+  if (!student) {
+    throw new httperror(404, "Student does not exist");
   }
-  throw new httperror(404, "Student does not exist");
 
-  // } catch (err) {
-  //   console.log(err);
-  //   res.sendStatus(500); // betyder uforudset fejl på serveren
-  // }
+  res.status(200).json(student); // 200 = OK
 }
 
 // POST lav en ny student
 // Forventer en body ser sådan ud: { "name": "Nanna Pedersen", "house_id": 1 }
 export async function createStudent(req, res) {
-  // try {
   const { name, house_id } = req.body;
 
   // Mangler name → 400 Bad Request
   if (!name) {
-    return res.sendStatus(400); // betyder bad request (der mangler data)
+    throw new httperror(400, "Name is required");
   }
 
   const newStudent = await studentsRepository.createStudent(name, house_id);
-
-  // Oprettet → 201 Created
-  res.status(201).json(newStudent); // betyder created
-  // } catch (err) {
-  //   console.log(err);
-  //   res.sendStatus(500); // betyder uforudset fejl på serveren
-  // }
+  res.status(201).json(newStudent); // 201 = Created
 }
 
 // PUT opdater eksisterende student
 // Forventer en body ved test der ser sådan ud: { "name": "Nanna Pedersen", "house_id": 1 }
 export async function updateStudent(req, res) {
-  // try {
   const id = req.params.id;
   const { name, house_id } = req.body;
 
   // Mangler name → 400 Bad Request
   if (!name) {
-    return res.sendStatus(400); // betyder bad request (der mangler data)
+    throw new httperror(400, "Name is required");
   }
 
   const updatedStudent = await studentsRepository.updateStudent(id, name, house_id);
 
   // Findes ikke → 404 Not Found
   if (!updatedStudent) {
-    return res.sendStatus(404); // betyder not found
+    throw new httperror(404, "Student does not exist");
   }
 
-  res.status(200).json(updatedStudent); // betyder OK
-  // } catch (err) {
-  //   console.log(err);
-  //   res.sendStatus(500); // betyder uforudset fejl på serveren
-  // }
+  res.status(200).json(updatedStudent); // 200 = OK
 }
 
 // DELETE eksisterende student
 export async function deleteStudent(req, res) {
-  // try {
   const id = req.params.id;
   const deletedCount = await studentsRepository.deleteStudent(id);
 
   // Intet blev slettet → 404 Not Found
   if (deletedCount === 0) {
-    return res.sendStatus(404); // betyder not found
+    throw new httperror(404, "Student does not exist");
   }
 
   // Slettet → 204 No Content (der sendes ikke noget tilbage)
-  res.sendStatus(204); // betyder no content
-  // } catch (err) {
-  //   console.log(err);
-  //   res.sendStatus(500); // betyder uforudset fejl på serveren
-  // }
+  res.sendStatus(204);
 }
